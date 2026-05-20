@@ -301,6 +301,19 @@ async function generateBatch() {
       throw new Error(await parseError(response));
     }
 
+    const contentType = response.headers.get("Content-Type") || "";
+    if (contentType.includes("application/zip")) {
+      const blob = await response.blob();
+      const filename = contentDispositionFilename(
+        response.headers.get("Content-Disposition"),
+        "vietnamese_tts_batch.zip"
+      );
+      downloadBlob(blob, filename);
+      batchProgress.value = 100;
+      setStatus(`ZIP 생성 완료: ${filename}`, "success");
+      return;
+    }
+
     const job = await response.json();
     if (!job.job_id) {
       throw new Error("작업 ID를 받지 못했습니다.");
