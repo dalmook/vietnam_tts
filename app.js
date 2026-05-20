@@ -44,6 +44,7 @@ const singleDownloadLink = $("#singleDownloadLink");
 const audioPreview = $("#audioPreview");
 const batchFileInput = $("#batchFileInput");
 const batchGenerateButton = $("#batchGenerateButton");
+const batchProgress = $("#batchProgress");
 const statusPanel = $(".status-panel");
 const statusText = $("#statusText");
 
@@ -108,6 +109,72 @@ function downloadBlob(blob, filename) {
   link.click();
   link.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => {
+    setTimeout(resolve, ms);
+  });
+}
+
+function batchStatusMessage(job) {
+  const progress = Number(job.progress_percent || 0).toFixed(1);
+  const current = job.current || 0;
+  const total = job.total || 0;
+  const created = job.created || 0;
+  const failed = job.failed || 0;
+  const currentFile = job.current_file ? ` / ${job.current_file}` : "";
+  return `ZIP 생성 중: ${progress}% (${current}/${total}) / 성공 ${created} / 실패 ${failed}${currentFile}`;
+}
+
+async function fetchBatchJob(jobId) {
+  const response = await fetch(apiUrl(`/api/jobs/${jobId}`), {
+    headers: authHeaders()
+  });
+  if (!response.ok) {
+    throw new Error(await parseError(response));
+  }
+  return response.json();
+}
+
+async function downloadBatchJob(jobId, downloadUrl) {
+  const response = await fetch(apiUrl(downloadUrl || `/api/jobs/${jobId}/download`), {
+    headers: authHeaders()
+  });
+  if (!response.ok) {
+    throw new Error(await parseError(response));
+  }
+
+  const blob = await response.blob();
+  const filename = contentDispositionFilename(
+    response.headers.get("Content-Disposition"),
+    "vietnamese_tts_batch.zip"
+  );
+  downloadBlob(blob, filename);
+  return filename;
+}
+
+async function waitForBatchJob(jobId) {
+  while (true) {
+    const job = await fetchBatchJob(jobId);
+    batchProgress.hidden = false;
+    batchProgress.value = Number(job.progress_percent || 0);
+
+    if (job.status === "completed") {
+      batchProgress.value = 100;
+      const filename = await downloadBatchJob(jobId, job.download_url);
+      setStatus(`ZIP 생성 완료: ${filename}`, "success");
+      return;
+    }
+
+    if (job.status === "failed") {
+      const detail = job.message || "작업 실패";
+      throw new Error(detail);
+    }
+
+    setStatus(batchStatusMessage(job));
+    await sleep(1500);
+  }
 }
 
 function populateVoices(voices = VOICES) {
@@ -213,8 +280,10 @@ async function generateBatch() {
     return;
   }
 
-  setStatus("ZIP 생성 중...");
+  setStatus("작업 등록 중...");
   batchGenerateButton.disabled = true;
+  batchProgress.hidden = false;
+  batchProgress.value = 0;
 
   const formData = new FormData();
   formData.append("file", file);
@@ -232,13 +301,12 @@ async function generateBatch() {
       throw new Error(await parseError(response));
     }
 
-    const blob = await response.blob();
-    const filename = contentDispositionFilename(
-      response.headers.get("Content-Disposition"),
-      "vietnamese_tts_batch.zip"
-    );
-    downloadBlob(blob, filename);
-    setStatus(`ZIP 생성 완료: ${filename}`, "success");
+    const job = await response.json();
+    if (!job.job_id) {
+      throw new Error("작업 ID를 받지 못했습니다.");
+    }
+    setStatus(`작업 등록 완료: ${job.job_id}`);
+    await waitForBatchJob(job.job_id);
   } catch (error) {
     setStatus(`ZIP 생성 실패: ${error.message}`, "error");
   } finally {
