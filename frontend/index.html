@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Vietnamese TTS MP3</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Google Cloud Text-to-Speech</p>
+          <h1>Vietnamese TTS MP3</h1>
+        </div>
+        <button id="healthButton" class="secondary-button" type="button">연결 확인</button>
+      </header>
+
+      <section class="api-panel" aria-label="API settings">
+        <label>
+          API 서버
+          <input id="apiBaseInput" type="url" placeholder="https://tts.example.com">
+        </label>
+        <label>
+          API 토큰
+          <input id="apiTokenInput" type="password" autocomplete="off" placeholder="NAS에서 설정한 API_TOKEN">
+        </label>
+      </section>
+
+      <section class="controls-panel" aria-label="Voice controls">
+        <label>
+          목소리 모델
+          <select id="voiceSelect"></select>
+        </label>
+        <label class="range-label">
+          발음 속도
+          <input id="rateInput" type="range" min="0.25" max="2" step="0.01" value="0.85">
+          <output id="rateOutput">0.85</output>
+        </label>
+        <label class="checkbox-label">
+          <input id="repeatShortInput" type="checkbox" checked>
+          한 글자 입력 시 3회 반복
+        </label>
+      </section>
+
+      <nav class="tabs" aria-label="TTS modes">
+        <button class="tab-button active" type="button" data-tab="single">단일 MP3</button>
+        <button class="tab-button" type="button" data-tab="batch">CSV/XLSX 일괄 생성</button>
+      </nav>
+
+      <section id="singleTab" class="workspace active" aria-label="Single MP3 generator">
+        <label>
+          베트남어 텍스트
+          <textarea id="textInput" rows="7" spellcheck="false">mẹ</textarea>
+        </label>
+        <label>
+          파일 이름
+          <input id="filenameInput" type="text" placeholder="비워두면 텍스트로 자동 생성">
+        </label>
+        <div class="action-row">
+          <button id="singleGenerateButton" class="primary-button" type="button">MP3 생성</button>
+          <a id="singleDownloadLink" class="download-link" hidden>다운로드</a>
+        </div>
+        <audio id="audioPreview" controls hidden></audio>
+      </section>
+
+      <section id="batchTab" class="workspace" aria-label="Batch MP3 generator">
+        <label>
+          CSV 또는 XLSX 파일
+          <input id="batchFileInput" type="file" accept=".csv,.xlsx">
+        </label>
+        <div class="table-note">
+          권장 컬럼: 카테고리, 베트남어, 한국어
+        </div>
+        <div class="action-row">
+          <button id="batchGenerateButton" class="primary-button" type="button">ZIP 생성</button>
+        </div>
+      </section>
+
+      <section class="status-panel" aria-label="Status">
+        <div id="statusText">대기 중</div>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
