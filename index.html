@@ -19,7 +19,7 @@
       <section class="api-panel" aria-label="API settings">
         <label>
           API 서버
-          <input id="apiBaseInput" type="url" value="https://vietnam.dalbong2.synology.me">
+          <input id="apiBaseInput" type="url" placeholder="https://tts.example.com">
         </label>
         <label>
           API 토큰
@@ -75,6 +75,7 @@
         <div class="action-row">
           <button id="batchGenerateButton" class="primary-button" type="button">ZIP 생성</button>
         </div>
+        <progress id="batchProgress" value="0" max="100" hidden></progress>
       </section>
 
       <section class="status-panel" aria-label="Status">
