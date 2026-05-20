@@ -341,7 +341,7 @@ function bindTabs() {
 }
 
 function restoreSettings() {
-  apiBaseInput.value = localStorage.getItem("ttsApiBase") || "http://localhost:18084";
+  apiBaseInput.value = localStorage.getItem("ttsApiBase") || "https://vietnam.dalbong2.synology.me";
   apiTokenInput.value = localStorage.getItem("ttsApiToken") || "";
   rateInput.value = localStorage.getItem("ttsRate") || "0.85";
   rateOutput.value = Number(rateInput.value).toFixed(2);
