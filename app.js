@@ -118,6 +118,13 @@ function sleep(ms) {
 }
 
 function batchStatusMessage(job) {
+  if (job.status === "queued") {
+    return "작업 대기 중...";
+  }
+  if (job.status === "parsing") {
+    return "엑셀 파일 읽는 중...";
+  }
+
   const progress = Number(job.progress_percent || 0).toFixed(1);
   const current = job.current || 0;
   const total = job.total || 0;
@@ -341,7 +348,7 @@ function bindTabs() {
 }
 
 function restoreSettings() {
-  apiBaseInput.value = localStorage.getItem("ttsApiBase") || "https://vietnam.dalbong2.synology.me";
+  apiBaseInput.value = localStorage.getItem("ttsApiBase") || "http://localhost:18084";
   apiTokenInput.value = localStorage.getItem("ttsApiToken") || "";
   rateInput.value = localStorage.getItem("ttsRate") || "0.85";
   rateOutput.value = Number(rateInput.value).toFixed(2);
