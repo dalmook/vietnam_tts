@@ -244,6 +244,11 @@ textarea:focus {
   align-items: center;
 }
 
+.single-action-row {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 audio {
   width: 100%;
 }
@@ -335,6 +340,7 @@ progress {
   .controls-panel,
   .voices-panel,
   .language-grid,
+  .single-action-row,
   .result-item {
     grid-template-columns: 1fr;
   }

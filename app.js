@@ -115,7 +115,7 @@ const rateInput = $("#rateInput");
 const rateOutput = $("#rateOutput");
 const repeatShortInput = $("#repeatShortInput");
 const filenameInput = $("#filenameInput");
-const singleGenerateButton = $("#singleGenerateButton");
+const singleGenerateButtons = document.querySelectorAll(".single-language-button");
 const singleResults = $("#singleResults");
 const batchFileInput = $("#batchFileInput");
 const batchGenerateButton = $("#batchGenerateButton");
@@ -366,8 +366,15 @@ function addSingleResult(language, blob, filename) {
   singleResults.hidden = false;
 }
 
-function singleGenerationItems() {
+function setSingleGenerateButtonsDisabled(disabled) {
+  singleGenerateButtons.forEach((button) => {
+    button.disabled = disabled;
+  });
+}
+
+function singleGenerationItems(languageKey) {
   return languageControls
+    .filter((language) => !languageKey || language.key === languageKey)
     .map((language) => ({
       language,
       text: language.textInput.value.trim(),
@@ -376,15 +383,16 @@ function singleGenerationItems() {
     .filter((item) => item.text);
 }
 
-async function generateSingle() {
-  const items = singleGenerationItems();
+async function generateSingle(languageKey) {
+  const items = singleGenerationItems(languageKey);
   if (!items.length) {
-    setStatus("텍스트를 하나 이상 입력하세요.", "error");
+    const language = languageControls.find((item) => item.key === languageKey);
+    setStatus(`${language ? language.label : "생성할"} 텍스트를 입력하세요.`, "error");
     return;
   }
 
   clearSingleResults();
-  singleGenerateButton.disabled = true;
+  setSingleGenerateButtonsDisabled(true);
 
   try {
     const prefix = filenameInput.value.trim();
@@ -403,7 +411,7 @@ async function generateSingle() {
   } catch (error) {
     setStatus(`생성 실패: ${error.message}`, "error");
   } finally {
-    singleGenerateButton.disabled = false;
+    setSingleGenerateButtonsDisabled(false);
   }
 }
 
@@ -581,6 +589,10 @@ populateVoiceSelects();
 bindTabs();
 bindSettings();
 healthButton.addEventListener("click", checkHealth);
-singleGenerateButton.addEventListener("click", generateSingle);
+singleGenerateButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    generateSingle(button.dataset.language);
+  });
+});
 batchGenerateButton.addEventListener("click", generateBatch);
 loadVoices();
