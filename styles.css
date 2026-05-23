@@ -43,6 +43,7 @@ textarea {
 .topbar,
 .api-panel,
 .controls-panel,
+.voices-panel,
 .workspace,
 .status-panel {
   background: var(--surface);
@@ -117,7 +118,8 @@ textarea:focus {
 }
 
 .api-panel,
-.controls-panel {
+.controls-panel,
+.voices-panel {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 14px;
@@ -126,6 +128,10 @@ textarea:focus {
 
 .api-panel {
   grid-template-columns: 1.4fr 1fr;
+}
+
+.controls-panel {
+  grid-template-columns: minmax(220px, 1fr) minmax(220px, 1fr);
 }
 
 .range-label {
@@ -203,6 +209,12 @@ textarea:focus {
   display: grid;
 }
 
+.language-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
 .primary-button {
   background: var(--accent);
   color: #fff;
@@ -234,6 +246,38 @@ textarea:focus {
 
 audio {
   width: 100%;
+}
+
+.result-list {
+  display: grid;
+  gap: 12px;
+}
+
+.result-item {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) minmax(260px, 2fr) auto;
+  gap: 12px;
+  align-items: center;
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+}
+
+.result-title {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.result-title strong,
+.result-title span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.result-title span {
+  color: var(--muted);
+  font-size: 0.86rem;
 }
 
 progress {
@@ -288,7 +332,10 @@ progress {
   }
 
   .api-panel,
-  .controls-panel {
+  .controls-panel,
+  .voices-panel,
+  .language-grid,
+  .result-item {
     grid-template-columns: 1fr;
   }
 

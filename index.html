@@ -28,18 +28,29 @@
       </section>
 
       <section class="controls-panel" aria-label="Voice controls">
-        <label>
-          목소리 모델
-          <select id="voiceSelect"></select>
-        </label>
         <label class="range-label">
-          발음 속도
+          말하기 속도
           <input id="rateInput" type="range" min="0.25" max="2" step="0.01" value="0.85">
           <output id="rateOutput">0.85</output>
         </label>
         <label class="checkbox-label">
           <input id="repeatShortInput" type="checkbox" checked>
-          한 글자 입력 시 3회 반복
+          짧은 입력은 3회 반복
+        </label>
+      </section>
+
+      <section class="voices-panel" aria-label="Voice models">
+        <label>
+          베트남어 목소리
+          <select id="voiceViSelect"></select>
+        </label>
+        <label>
+          한국어 목소리
+          <select id="voiceKoSelect"></select>
+        </label>
+        <label>
+          영어 목소리
+          <select id="voiceEnSelect"></select>
         </label>
       </section>
 
@@ -49,19 +60,28 @@
       </nav>
 
       <section id="singleTab" class="workspace active" aria-label="Single MP3 generator">
+        <div class="language-grid">
+          <label>
+            베트남어 텍스트
+            <textarea id="textViInput" rows="5" spellcheck="false">Xin chào, tôi đang học tiếng Việt.</textarea>
+          </label>
+          <label>
+            한국어 텍스트
+            <textarea id="textKoInput" rows="5" spellcheck="false">안녕하세요. 한국어 음성을 생성합니다.</textarea>
+          </label>
+          <label>
+            영어 텍스트
+            <textarea id="textEnInput" rows="5" spellcheck="false">Hello, I am creating an English voice file.</textarea>
+          </label>
+        </div>
         <label>
-          베트남어 텍스트
-          <textarea id="textInput" rows="7" spellcheck="false">mẹ</textarea>
-        </label>
-        <label>
-          파일 이름
+          파일 이름 접두어
           <input id="filenameInput" type="text" placeholder="비워두면 텍스트로 자동 생성">
         </label>
         <div class="action-row">
           <button id="singleGenerateButton" class="primary-button" type="button">MP3 생성</button>
-          <a id="singleDownloadLink" class="download-link" hidden>다운로드</a>
         </div>
-        <audio id="audioPreview" controls hidden></audio>
+        <div id="singleResults" class="result-list" hidden></div>
       </section>
 
       <section id="batchTab" class="workspace" aria-label="Batch MP3 generator">
@@ -70,7 +90,7 @@
           <input id="batchFileInput" type="file" accept=".csv,.xlsx">
         </label>
         <div class="table-note">
-          권장 컬럼: 카테고리, 베트남어, 한국어
+          권장 컬럼: 카테고리, 베트남어, 한국어, 영어
         </div>
         <div class="action-row">
           <button id="batchGenerateButton" class="primary-button" type="button">ZIP 생성</button>
@@ -83,6 +103,8 @@
       </section>
     </main>
 
+    <script src="vendor/xlsx.full.min.js"></script>
+    <script src="vendor/jszip.min.js"></script>
     <script src="app.js"></script>
   </body>
 </html>
