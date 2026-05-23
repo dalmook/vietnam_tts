@@ -299,7 +299,16 @@ function zipPathForTask(task, usedPaths) {
   return path;
 }
 
-function populateVoiceSelect(language, voices = language.voices) {
+function setSingleLanguageButtonEnabled(languageKey, enabled) {
+  const button = Array.from(singleGenerateButtons).find(
+    (item) => item.dataset.language === languageKey
+  );
+  if (button) {
+    button.disabled = !enabled;
+  }
+}
+
+function populateVoiceSelect(language, voices = language.voices, strict = false) {
   const select = language.voiceSelect;
   const previous = select.value;
   const stored =
@@ -307,9 +316,20 @@ function populateVoiceSelect(language, voices = language.voices) {
     (language.key === "vi" ? localStorage.getItem("ttsVoice") : "") ||
     previous ||
     language.defaultVoice;
-  const availableVoices = voices.length ? voices : language.voices;
+  const availableVoices = voices.length || strict ? voices : language.voices;
 
   select.innerHTML = "";
+  select.disabled = availableVoices.length === 0;
+  setSingleLanguageButtonEnabled(language.key, availableVoices.length > 0);
+
+  if (!availableVoices.length) {
+    const option = document.createElement("option");
+    option.value = "";
+    option.textContent = `${language.label} 서버 지원 음성 없음`;
+    select.appendChild(option);
+    return;
+  }
+
   availableVoices.forEach((voice) => {
     const option = document.createElement("option");
     option.value = voice;
@@ -326,12 +346,12 @@ function populateVoiceSelect(language, voices = language.voices) {
   }
 }
 
-function populateVoiceSelects(voices) {
+function populateVoiceSelects(voices, strict = false) {
   languageControls.forEach((language) => {
     const languageVoices = Array.isArray(voices)
       ? voices.filter((voice) => voice.startsWith(`${language.code}-`))
       : language.voices;
-    populateVoiceSelect(language, languageVoices);
+    populateVoiceSelect(language, languageVoices, strict);
   });
 }
 
@@ -344,7 +364,7 @@ async function loadVoices() {
     if (response.ok) {
       const payload = await response.json();
       if (Array.isArray(payload.voices)) {
-        populateVoiceSelects(payload.voices);
+        populateVoiceSelects(payload.voices, true);
       }
     }
   } catch {
@@ -443,13 +463,17 @@ function singleGenerationItems(languageKey) {
       text: language.textInput.value.trim(),
       voiceName: language.voiceSelect.value
     }))
-    .filter((item) => item.text);
+    .filter((item) => item.text && item.voiceName);
 }
 
 async function generateSingle(languageKey) {
   const items = singleGenerationItems(languageKey);
   if (!items.length) {
     const language = languageControls.find((item) => item.key === languageKey);
+    if (language && !language.voiceSelect.value) {
+      setStatus(`${language.label} 음성을 서버가 아직 지원하지 않습니다.`, "error");
+      return;
+    }
     setStatus(`${language ? language.label : "생성할"} 텍스트를 입력하세요.`, "error");
     return;
   }
@@ -531,6 +555,9 @@ function batchTasks(rows) {
 
   rows.forEach((row, rowIndex) => {
     languageControls.forEach((language) => {
+      if (!language.voiceSelect.value) {
+        return;
+      }
       const column = columns.languages.get(language.key);
       const text = column ? String(row[column] || "").trim() : "";
       if (!text) {
